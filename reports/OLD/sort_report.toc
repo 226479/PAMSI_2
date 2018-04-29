@@ -1,0 +1,17 @@
+\contentsline {section}{\numberline {1}Algorytm Merge Sort }{1}
+\contentsline {subsection}{\numberline {1.1}Opis}{1}
+\contentsline {subsection}{\numberline {1.2}Tabela pomiar\IeC {\'o}w}{1}
+\contentsline {subsection}{\numberline {1.3}Wykres}{2}
+\contentsline {section}{\numberline {2}Algorytm Quick Sort }{3}
+\contentsline {subsection}{\numberline {2.1}Opis}{3}
+\contentsline {subsection}{\numberline {2.2}Tabela pomiar\IeC {\'o}w}{3}
+\contentsline {subsection}{\numberline {2.3}Wykres}{4}
+\contentsline {section}{\numberline {3}Algorytm Heap Sort }{5}
+\contentsline {subsection}{\numberline {3.1}Opis}{5}
+\contentsline {subsection}{\numberline {3.2}Tabela pomiar\IeC {\'o}w}{5}
+\contentsline {subsection}{\numberline {3.3}Wykres}{6}
+\contentsline {section}{\numberline {4}Algorytm Hybrid Sort }{7}
+\contentsline {subsection}{\numberline {4.1}Opis}{7}
+\contentsline {subsection}{\numberline {4.2}Tabela pomiar\IeC {\'o}w}{7}
+\contentsline {subsection}{\numberline {4.3}Wykres}{8}
+\contentsline {section}{\numberline {5}Wnioski}{9}

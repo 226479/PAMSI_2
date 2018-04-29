@@ -1,0 +1,292 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <cstring>
+#include <stack>
+
+#include "stacja.hh"
+#include "graf.hh"
+#include "lacze_z_gnuplot.hh"
+#include "interfejsy.hh"
+
+
+using namespace std;
+
+void czytaj(shared_ptr<Graf> graf, char nazwapliku[], char nazwatramwaju[])
+{
+    ifstream tramwaj;
+    tramwaj.open(nazwapliku);
+
+    string bufor, linia, pustalinia;
+    bool jest=false;
+    int czas, nr_id;
+    string przystanek;
+    string ulica;
+
+    shared_ptr<Stacja> ten;
+    shared_ptr<Stacja> nastepny;
+
+    streampos iOdczytanaPozycja = tramwaj.tellg();
+    getline(tramwaj, pustalinia);
+    tramwaj.seekg( iOdczytanaPozycja);
+
+
+    while(!tramwaj.eof())
+    {
+
+        getline(tramwaj, bufor); //wczytuje pusta linie
+
+        getline(tramwaj,linia, ','); //zaczynam czytac dane pierwszego przystanku na trasie
+        nr_id = atoi(linia.c_str());
+
+        getline(tramwaj,linia, ',');
+        przystanek=linia;
+
+        getline(tramwaj,linia, ',');
+        ulica=linia;
+
+        getline(tramwaj,linia);
+        czas = atoi(linia.c_str());
+
+        jest=false;
+        for( list<shared_ptr<Stacja>>::iterator iter=graf->lstStacji.begin(); iter != graf->lstStacji.end(); iter++ ) //spawdzam czy mam juz taki przystanek w grafie
+        {
+            if((*iter)->nazwa_przystanku==przystanek)
+            {
+                ten=*iter; //jesli jest to ustawiam na niego wskaznik
+                jest=true;
+                break;
+            }
+        }
+        if(!jest) //jak nie mam takiego przystanku w grafie to dodaje nowy i ustawiam na niego wskaznik
+        {
+            graf->lstStacji.push_back(make_shared<Stacja>());
+            ten=*(--(graf->lstStacji.end()));
+            ten->nazwa_przystanku=przystanek;
+            ten->nazwa_ulicy=ulica;
+            ten->id=nr_id;
+        }
+
+
+        while (!tramwaj.eof()) //wczytuje kolejne przystanki na trasie i tworze miedzy nimi polaczenia w grafie
+        {
+            getline(tramwaj,linia, ',');
+            nr_id = atoi(linia.c_str());
+
+            getline(tramwaj,linia, ',');
+            przystanek=linia;
+
+            getline(tramwaj,linia, ',');
+            ulica=linia;
+
+            getline(tramwaj,linia);
+            czas = atoi(linia.c_str());
+
+            jest=false;
+
+            for( list<shared_ptr<Stacja>>::iterator iter=graf->lstStacji.begin(); iter != graf->lstStacji.end(); iter++ )
+            {
+                if((*iter)->nazwa_przystanku==przystanek)
+                {
+                    nastepny=(*iter);
+                    jest=true;
+                    break;
+                }
+            }
+            if(!jest)
+            {
+                graf->lstStacji.push_back(make_shared<Stacja>());
+                nastepny=*(--(graf->lstStacji.end()));
+                nastepny->nazwa_przystanku=przystanek;
+                nastepny->nazwa_ulicy=ulica;
+                nastepny->id=nr_id;
+            }
+            ten->lstSasiadow.push_back(make_shared<Polaczenie>());
+            (*(--(ten->lstSasiadow.end())))->sasiedni_przystanek=nastepny;
+            (*(--(ten->lstSasiadow.end())))->czas_dojazdu=czas;
+            (*(--(ten->lstSasiadow.end())))->nazwa_tramwaju=nazwatramwaju;
+            ten=nastepny;
+
+
+            iOdczytanaPozycja = tramwaj.tellg(); //sprawdzam czy nastepnie nie ma pustej linii co oznacza koniec trasy i rozpoczecie nowej
+            getline(tramwaj, bufor);
+            if(bufor==pustalinia) //jesli jest pusta linia to trzeba rozpoczac czytanie kolejnej trasy
+            {
+                tramwaj.seekg( iOdczytanaPozycja);
+                break;
+
+            }
+            else if(!tramwaj.eof()) //jesli nie bylo pustej linii i to nie koniec pliku to po prostu wracam do miejsca sprzed sprawdzenia
+            {
+                tramwaj.seekg( iOdczytanaPozycja);
+            }
+        }
+    }
+    tramwaj.close();
+}
+
+int main()
+{
+    FILE * gnupotok = otworzPotokGnuplota();
+    FILE * gnupotok2 = otworzPotokGnuplota();
+
+    string names[][2]= {"tramwaje/000l/000l.csv", "tramwaj 0L",
+                        "tramwaje/000p/000p.csv", "tramwaj 0P",
+                        "tramwaje/0001/0001.csv", "tramwaj 1",
+                        "tramwaje/0002/0002.csv", "tramwaj 2",
+                        "tramwaje/0003/0003.csv", "tramwaj 3",
+                        "tramwaje/0004/0004.csv", "tramwaj 4",
+                        "tramwaje/0005/0005.csv", "tramwaj 5",
+                        "tramwaje/0006/0006.csv", "tramwaj 6",
+                        "tramwaje/0007/0007.csv", "tramwaj 7",
+                        "tramwaje/0008/0008.csv", "tramwaj 8",
+                        "tramwaje/0009/0009.csv", "tramwaj 9",
+                        "tramwaje/0010/0010.csv", "tramwaj 10",
+                        "tramwaje/0011/0011.csv", "tramwaj 11",
+                        "tramwaje/0014/0014.csv", "tramwaj 14",
+                        "tramwaje/0015/0015.csv", "tramwaj 15",
+                        "tramwaje/0017/0017.csv", "tramwaj 17",
+                        "tramwaje/0020/0020.csv", "tramwaj 20",
+                        "tramwaje/0023/0023.csv", "tramwaj 23",
+                        "tramwaje/0024/0024.csv", "tramwaj 24",
+                        "tramwaje/0031/0031.csv", "tramwaj 31",
+                        "tramwaje/0032/0032.csv", "tramwaj 32",
+                        "tramwaje/0033/0033.csv", "tramwaj 33"
+                       };
+
+    shared_ptr<Graf> graf_miasta=make_shared<Graf>();
+    shared_ptr<stack < shared_ptr<Stacja> >> myroad=make_shared<stack< shared_ptr<Stacja> >>();
+    //string startstationname;
+    //string endstationname;
+    int startid;
+    int endid;
+    shared_ptr<Stacja> startstation=nullptr;
+    shared_ptr<Stacja> endstation=nullptr;
+
+    for(int i=0; i<10; ++i)
+    {
+        char *nazwa_pliku = new char[names[i][0].size()+1];
+        strcpy(nazwa_pliku, names[i][0].c_str());
+        char *nazwa_tranwaju = new char[names[i][1].size()+1];
+        strcpy(nazwa_tranwaju, names[i][1].c_str());
+        czytaj(graf_miasta, nazwa_pliku, nazwa_tranwaju);
+    }
+
+    ifstream lokalizacje;
+    lokalizacje.open("slupkiwspolrzedne.csv");
+    string bufor;
+    double x,y;
+    int id;
+    getline(lokalizacje, bufor);
+    while (!lokalizacje.eof())
+    {
+        getline(lokalizacje,bufor, ';');
+        x = atof(bufor.c_str());
+
+        getline(lokalizacje,bufor, ';');
+        y = atof(bufor.c_str());
+
+        getline(lokalizacje,bufor, ';');
+        id = atoi(bufor.c_str());
+
+        getline(lokalizacje,bufor);
+        for( list<shared_ptr<Stacja>>::iterator iter=graf_miasta->lstStacji.begin(); iter != graf_miasta->lstStacji.end(); iter++ )
+        {
+            if((*iter)->id==id)
+            {
+                (*iter)->x=x;
+                (*iter)->y=y;
+                break;
+            }
+        }
+    }
+
+    ofstream mapa;
+    mapa.open("mapa.dat");
+
+    ofstream exportmyroadBFS;
+    ofstream exportmyroadDFS;
+
+
+    for( list<shared_ptr<Stacja>>::iterator iter=graf_miasta->lstStacji.begin(); iter != graf_miasta->lstStacji.end(); iter++ )
+    {
+        //cout<<"przystanek: "<<(*iter)->nazwa_przystanku<<" "<<(*iter)->x<<" "<<(*iter)->y<<" "<<(*iter)->id<<endl;
+        mapa<<(*iter)->x<<" "<<(*iter)->y<<endl;
+
+        for( list<shared_ptr<Polaczenie>>::iterator iter2=((*iter)->lstSasiadow.begin()); iter2 != ((*iter)->lstSasiadow.end()); iter2++ )
+        {
+            //cout<<"dojade do:"<<endl;
+            //Scout<<(*iter2)->sasiedni_przystanek->nazwa_przystanku<<" w czasie: "<<(*iter2)->czas_dojazdu<<" tramwajem: "<<(*iter2)->nazwa_tramwaju<<endl;
+            mapa<<(*iter2)->sasiedni_przystanek->x<<" "<<(*iter2)->sasiedni_przystanek->y<<endl;
+        }
+        //cout<<endl;
+        mapa<<endl;
+    }
+
+    mapa.close();
+    lokalizacje.close();
+
+    cout<<"Wpisz id stacji poczatkowej:"<<endl;
+    cin>>startid;
+    cout<<"Wpisz id stacji koncowej:"<<endl;
+    cin>>endid;
+
+    for( list<shared_ptr<Stacja>>::iterator iter=graf_miasta->lstStacji.begin(); iter != graf_miasta->lstStacji.end(); iter++ )
+    {
+        bool control1=false;
+        bool control2=false;
+        if((*iter)->id==startid)
+        {
+            startstation=(*iter);
+            control1=true;
+        }
+        if((*iter)->id==endid)
+        {
+            endstation=(*iter);
+            control2=true;
+        }
+        if(control1&&control2) break;
+    }
+
+/////////////////////////// BFS /////////////////////////////////////////////////
+    cout<<endl<<"BFS"<<endl;
+    cout<<"start: "<<startstation->nazwa_przystanku<<" stop: "<<endstation->nazwa_przystanku<<endl;
+    graf_miasta->BrethFirstSearch(startstation,endstation, myroad, gnupotok, "mapa.dat", "exportmyroadBFS.dat", "BFS", exportmyroadBFS);
+
+    exportmyroadBFS.open("exportmyroadBFS.dat");
+    while(!(*myroad).empty())
+    {
+        cout<<(*myroad).top()->nazwa_przystanku<<" "<<(*myroad).top()->searchTramToParent<<endl;
+        exportmyroadBFS<<(*myroad).top()->x<<" "<<(*myroad).top()->y<<endl;
+        (*myroad).pop();
+    }
+
+    exportmyroadBFS.close();
+
+    RysujWykres(gnupotok, "mapa.dat", "exportmyroadBFS.dat", "BFS");
+    fflush( gnupotok ); /* czyszczenie bufora zapisu */
+
+//////////////////////// DFS ////////////////////////////////////////////////////
+    cout<<endl<<"DFS"<<endl;
+    cout<<"start: "<<startstation->nazwa_przystanku<<" stop: "<<endstation->nazwa_przystanku<<endl;
+    graf_miasta->DeepFirstSearch(startstation,endstation, myroad, gnupotok2, "mapa.dat", "exportmyroadDFS.dat", "DFS", exportmyroadDFS);
+
+    exportmyroadDFS.open("exportmyroadDFS.dat");
+    while(!(*myroad).empty())
+    {
+        cout<<(*myroad).top()->nazwa_przystanku<<" "<<(*myroad).top()->searchTramToParent<<endl;
+        exportmyroadDFS<<(*myroad).top()->x<<" "<<(*myroad).top()->y<<endl;
+        (*myroad).pop();
+    }
+
+    exportmyroadDFS.close();
+
+    RysujWykres(gnupotok2, "mapa.dat", "exportmyroadDFS.dat", "DFS");
+    fflush( gnupotok2 ); /* czyszczenie bufora zapisu */
+    getchar();
+    getchar();
+    pclose( gnupotok );
+    pclose( gnupotok2 );
+    return 0;
+}
+
