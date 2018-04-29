@@ -1,0 +1,137 @@
+#include "graf.hh"
+
+void Graf::BrethFirstSearch(shared_ptr<Stacja> startStation, shared_ptr<Stacja> endStation, shared_ptr<stack < shared_ptr<Stacja> >> myroad, FILE * potok, char nazwawejscia[], char nazwawejscia2[], char tytul[], ofstream &exportmyroad)
+{
+    int time_to_endStation=0;
+
+    for( list<shared_ptr<Stacja>>::iterator iter=lstStacji.begin(); iter != lstStacji.end(); iter++ )
+    {
+        (*iter)->color=0;
+    }
+
+    startStation->color=1;
+
+    queue<shared_ptr<Stacja>> myqueue;
+    shared_ptr<Stacja> u;
+    myqueue.push(startStation);
+    while (!myqueue.empty())
+    {
+        u=myqueue.front();
+        myqueue.pop();
+        if(u==endStation)
+        {
+
+            while(u!=startStation)
+            {
+                time_to_endStation+=u->searchTimeToParent;
+                (*myroad).push(u);
+                u=u->searchParent;
+            }
+            (*myroad).push(startStation);
+            break;
+        }
+        for( list<shared_ptr<Polaczenie>>::iterator iter2=(u->lstSasiadow.begin()); iter2 != (u->lstSasiadow.end()); iter2++ )
+        {
+            if((*iter2)->sasiedni_przystanek->color==0)
+            {
+                (*iter2)->sasiedni_przystanek->color=1;
+                (*iter2)->sasiedni_przystanek->searchParent=u;
+                (*iter2)->sasiedni_przystanek->searchTimeToParent=(*iter2)->czas_dojazdu;
+                (*iter2)->sasiedni_przystanek->searchTramToParent=(*iter2)->nazwa_tramwaju;
+                myqueue.push((*iter2)->sasiedni_przystanek);
+            }
+        }
+        u->color=3;
+/////////////////////////////////////// TU FUNKJA WIZUALIZUJE SWOJE DZIALANIE ////////////////////////////////
+        (*myroad).push(u);
+        while(u!=startStation)
+        {
+            //cout<<u->nazwa_przystanku<<" "<<u->searchTramToParent<<endl;
+            //time_to_endStation+=u->searchTimeToParent;
+            (*myroad).push(u);
+            u=u->searchParent;
+        }
+        (*myroad).push(startStation);
+        exportmyroad.open("exportmyroadBFS.dat");
+        while(!(*myroad).empty())
+        {
+            exportmyroad<<(*myroad).top()->x<<" "<<(*myroad).top()->y<<endl;
+            (*myroad).pop();
+        }
+        exportmyroad.close();
+        RysujWykres(potok, "mapa.dat", "exportmyroadBFS.dat", "BFS");
+        fflush( potok );
+        //usleep( 100 * 1000 );
+////////////////////////////////////// KONIEC WIZUALIZACJI /////////////////////////////////////////////////
+
+    }
+    cout<<"czas: "<<time_to_endStation<<endl<<endl;
+}
+
+void Graf::DeepFirstSearch(shared_ptr<Stacja> startStation, shared_ptr<Stacja> endStation, shared_ptr<stack < shared_ptr<Stacja> >> myroad, FILE * potok, char nazwawejscia[], char nazwawejscia2[], char tytul[], ofstream &exportmyroad)
+{
+    int time_to_endStation=0;
+
+    for( list<shared_ptr<Stacja>>::iterator iter=lstStacji.begin(); iter != lstStacji.end(); iter++ )
+    {
+        (*iter)->color=0;
+    }
+
+    startStation->color=1;
+
+    stack<shared_ptr<Stacja>> mystack;
+    shared_ptr<Stacja> u;
+    mystack.push(startStation);
+    while (!mystack.empty())
+    {
+        u=mystack.top();
+        mystack.pop();
+        if(u==endStation)
+        {
+
+            while(u!=startStation)
+            {
+                time_to_endStation+=u->searchTimeToParent;
+                (*myroad).push(u);
+                u=u->searchParent;
+            }
+            (*myroad).push(startStation);
+            break;
+        }
+        for( list<shared_ptr<Polaczenie>>::iterator iter2=(u->lstSasiadow.begin()); iter2 != (u->lstSasiadow.end()); iter2++ )
+        {
+            if((*iter2)->sasiedni_przystanek->color==0)
+            {
+                (*iter2)->sasiedni_przystanek->color=1;
+                (*iter2)->sasiedni_przystanek->searchParent=u;
+                (*iter2)->sasiedni_przystanek->searchTimeToParent=(*iter2)->czas_dojazdu;
+                (*iter2)->sasiedni_przystanek->searchTramToParent=(*iter2)->nazwa_tramwaju;
+                mystack.push((*iter2)->sasiedni_przystanek);
+            }
+        }
+        u->color=3;
+/////////////////////////////////////// TU FUNKJA WIZUALIZUJE SWOJE DZIALANIE ////////////////////////////////
+        (*myroad).push(u);
+        while(u!=startStation)
+        {
+            //cout<<u->nazwa_przystanku<<" "<<u->searchTramToParent<<endl;
+            //time_to_endStation+=u->searchTimeToParent;
+            (*myroad).push(u);
+            u=u->searchParent;
+        }
+        (*myroad).push(startStation);
+        exportmyroad.open("exportmyroadDFS.dat");
+        while(!(*myroad).empty())
+        {
+            exportmyroad<<(*myroad).top()->x<<" "<<(*myroad).top()->y<<endl;
+            (*myroad).pop();
+        }
+        exportmyroad.close();
+        RysujWykres(potok, "mapa.dat", "exportmyroadDFS.dat", "DFS");
+        fflush( potok );
+	//        usleep( 100 * 1000 );
+////////////////////////////////////// KONIEC WIZUALIZACJI /////////////////////////////////////////////////
+
+    }
+    cout<<"czas: "<<time_to_endStation<<endl<<endl;
+}

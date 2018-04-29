@@ -1,0 +1,2 @@
+\contentsline {section}{\numberline {1}Parser danych XML }{1}
+\contentsline {section}{\numberline {2}GUI }{1}
