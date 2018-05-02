@@ -53,6 +53,7 @@ void Graph::run(const int& start_id, const int& end_id) {
         export_my_road_BFS.open("../data_trams/exportmyroadBFS.dat");
         while (!(*my_road1).empty())
         {
+            std::cout <<  (*my_road1).top()->station_name << std::endl;
             export_my_road_BFS << (*my_road1).top()->localization[0] << " " << (*my_road1).top()->localization[1] << std::endl;
             (*my_road1).pop();
         }
@@ -64,6 +65,7 @@ void Graph::run(const int& start_id, const int& end_id) {
         export_my_road_DFS.open("../data_trams/exportmyroadDFS.dat");
         while (!(*my_road2).empty())
         {
+            std::cout <<  (*my_road2).top()->station_name << std::endl;
             export_my_road_DFS << (*my_road2).top()->localization[0] << " " << (*my_road2).top()->localization[1] << std::endl;
             (*my_road2).pop();
         }
@@ -75,6 +77,7 @@ void Graph::run(const int& start_id, const int& end_id) {
         export_my_road_ASTAR.open("../data_trams/exportmyroadASTAR.dat");
         while (!(*my_road3).empty())
         {
+            std::cout <<  (*my_road3).top()->station_name << std::endl;
             export_my_road_ASTAR << (*my_road3).top()->localization[0] << " " << (*my_road3).top()->localization[1] << std::endl;
             (*my_road3).pop();
         }
@@ -349,9 +352,10 @@ void Graph::breth_first_search(std::shared_ptr<Station> start_station,
 
 //    auto finish = std::chrono::high_resolution_clock::now();
 //    std::chrono::duration<double> elapsed = finish - start;
-
+    std::cout << "===== BFS =====" << std::endl;
+    std::cout << start_station->station_name << " --> " << end_station->station_name << std::endl;
     std::cout << "czas: " << time_to_end_station << std::endl;
-//    std::cout << extensions << std::endl;
+    std::cout << "zbadane połączenia: " << extensions << std::endl;
 //    std::cout.precision(10);
 //    std::cout << elapsed.count() << std::endl;
 }
@@ -438,9 +442,10 @@ void Graph::deep_first_search(std::shared_ptr<Station> start_station,
     }
 //    auto finish = std::chrono::high_resolution_clock::now();
 //    std::chrono::duration<double> elapsed = finish - start;
-
+    std::cout << "===== DFS =====" << std::endl;
+    std::cout << start_station->station_name << " --> " << end_station->station_name << std::endl;
     std::cout << "czas: " << time_to_end_station << std::endl;
-//    std::cout << extensions << std::endl;
+    std::cout << "zbadane połączenia: " << extensions << std::endl;
 //    std::cout.precision(10);
 //    std::cout << elapsed.count() << std::endl;
 }
@@ -568,8 +573,10 @@ void Graph::astar(std::shared_ptr<Station> start_station, std::shared_ptr<Statio
 //    auto finish = std::chrono::high_resolution_clock::now();
 //    std::chrono::duration<double> elapsed = finish - start;
 
+    std::cout << "===== AStar =====" << std::endl;
+    std::cout << start_station->station_name << " --> " << end_station->station_name << std::endl;
     std::cout << "czas: " << time_to_end_station << std::endl;
-//    std::cout << extensions << std::endl;
+    std::cout << "zbadane połączenia: " << extensions << std::endl;
 //    std::cout.precision(10);
 //    std::cout << elapsed.count() << std::endl;
 }
